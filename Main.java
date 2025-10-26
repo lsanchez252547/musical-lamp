@@ -1,56 +1,74 @@
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+
 public class Main {
-  public static void main(String[] args) {
-    String text = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    
-    // Best-case: pattern found at the very beginning
-    String bestCase = "ABC";
+    public static void main(String[] args) {
+        System.out.println("Unsorted Array ---------------------------------------------------");
+        ArrayList<Integer> integerList = Lab4.getList();
+        Lab4.outputList(integerList);
 
-    long startTime = System.nanoTime();
-    int index = match(text, bestCase);
-    long endTime = System.nanoTime();
-    long elapsedTime = endTime - startTime;
+        System.out.println("\n\nBubble sort results ----------------------------------------------");
+        long bubbleStart = System.nanoTime();
+        ArrayList<Integer> bubbleSortedList = Lab4.bubbleSort(integerList);
+        long bubbleEnd = System.nanoTime();
+        Lab4.outputList(bubbleSortedList);
+        System.out.println("\nBubble sort time: " + (bubbleEnd - bubbleStart) + " nanoseconds");
 
-    if (index >= 0)
-      System.out.println("Best-case input matched at index " + index);
-    else
-      System.out.println("Best-case input unmatched");
-    
-    System.out.println("Best-case elapsed time: " + elapsedTime + " ns");
-
-    // Worst-case: pattern not found, but looks similar to actual substrings
-    String worstCase = "XYZ123"; // Not in text, but similar chars exist
-
-    startTime = System.nanoTime();
-    index = match(text, worstCase);
-    endTime = System.nanoTime();
-    elapsedTime = endTime - startTime;
-
-    if (index >= 0)
-      System.out.println("Worst-case input matched at index " + index);
-    else
-      System.out.println("Worst-case input unmatched");
-
-    System.out.println("Worst-case elapsed time: " + elapsedTime + " ns");
-  }
-
-  // Return the index of the first match. -1 otherwise.
-  public static int match(String text, String pattern) {
-    for (int i = 0; i < text.length() - pattern.length() + 1; i++) {
-      if (isMatched(i, text, pattern))
-        return i;
+        System.out.println("\n\nInsertion sort results -------------------------------------------");
+        long insertionStart = System.nanoTime();
+        ArrayList<Integer> insertionSortedList = Lab4.insertionSort(integerList);  
+        long insertionEnd = System.nanoTime();
+        Lab4.outputList(insertionSortedList);
+        System.out.println("\nInsertion sort time: " + (insertionEnd - insertionStart) + " nanoseconds");
     }
-
-    return -1;
-  }
-
-  // Test if pattern matches text starting at index i
-  private static boolean isMatched(int i, String text, String pattern) {
-    for (int k = 0; k < pattern.length(); k++) {
-      if (pattern.charAt(k) != text.charAt(i + k)) {
-        return false;
-      }
-    }
-    
-    return true;
-  }
 }
+
+class Lab4 {
+
+    public static ArrayList<Integer> insertionSort(ArrayList<Integer> integerList) {
+        // Create a copy so original list is not modified
+        ArrayList<Integer> list = new ArrayList<>(integerList);
+
+        for (int i = 1; i < list.size(); i++) {
+            int key = list.get(i);
+            int j = i - 1;
+
+            // Move elements greater than key one position ahead
+            while (j >= 0 && list.get(j) > key) {
+                list.set(j + 1, list.get(j));
+                j--;
+            }
+            list.set(j + 1, key);
+        }
+
+        return list;
+    }
+
+    public static ArrayList<Integer> bubbleSort(ArrayList<Integer> integerList) {
+        // Create a copy so original list is not modified
+        ArrayList<Integer> list = new ArrayList<>(integerList);
+        int n = list.size();
+        boolean swapped;
+
+        for (int i = 0; i < n - 1; i++) {
+            swapped = false;
+            for (int j = 0; j < n - 1 - i; j++) {
+                if (list.get(j) > list.get(j + 1)) {
+                    // Swap elements
+                    int temp = list.get(j);
+                    list.set(j, list.get(j + 1));
+                    list.set(j + 1, temp);
+                    swapped = true;
+                }
+            }
+            // If no swaps occurred in this pass, the list is sorted
+            if (!swapped) break;
+        }
+
+        return list;
+    }
+
+    public static ArrayList<Integer> getList() {
+        ArrayList<Integer> integerList = new ArrayList

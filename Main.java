@@ -1,74 +1,148 @@
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
+import java.util.*;
 
-public class Main {
-    public static void main(String[] args) {
-        System.out.println("Unsorted Array ---------------------------------------------------");
-        ArrayList<Integer> integerList = Lab4.getList();
-        Lab4.outputList(integerList);
+class BST {
+    class Node {
+        int value;
+        Node left, right;
+        Node(int val) { value = val; }
+    }
 
-        System.out.println("\n\nBubble sort results ----------------------------------------------");
-        long bubbleStart = System.nanoTime();
-        ArrayList<Integer> bubbleSortedList = Lab4.bubbleSort(integerList);
-        long bubbleEnd = System.nanoTime();
-        Lab4.outputList(bubbleSortedList);
-        System.out.println("\nBubble sort time: " + (bubbleEnd - bubbleStart) + " nanoseconds");
+    private Node root;
 
-        System.out.println("\n\nInsertion sort results -------------------------------------------");
-        long insertionStart = System.nanoTime();
-        ArrayList<Integer> insertionSortedList = Lab4.insertionSort(integerList);  
-        long insertionEnd = System.nanoTime();
-        Lab4.outputList(insertionSortedList);
-        System.out.println("\nInsertion sort time: " + (insertionEnd - insertionStart) + " nanoseconds");
+    public void insert(int val) {
+        root = insertRec(root, val);
+    }
+
+    private Node insertRec(Node node, int val) {
+        if (node == null) return new Node(val);
+        if (val < node.value) node.left = insertRec(node.left, val);
+        else if (val > node.value) node.right = insertRec(node.right, val);
+        return node;
+    }
+
+    public void delete(int val) {
+        root = deleteRec(root, val);
+    }
+
+    private Node deleteRec(Node node, int val) {
+        if (node == null) return null;
+        if (val < node.value) node.left = deleteRec(node.left, val);
+        else if (val > node.value) node.right = deleteRec(node.right, val);
+        else {
+            if (node.left == null) return node.right;
+            if (node.right == null) return node.left;
+            node.value = minValue(node.right);
+            node.right = deleteRec(node.right, node.value);
+        }
+        return node;
+    }
+
+    private int minValue(Node node) {
+        while (node.left != null) node = node.left;
+        return node.value;
+    }
+
+    public void inorder() {
+        inorderRec(root);
+        System.out.println();
+    }
+
+    private void inorderRec(Node node) {
+        if (node != null) {
+            inorderRec(node.left);
+            System.out.print(node.value + " ");
+            inorderRec(node.right);
+        }
+    }
+
+    public void postorder() {
+        postorderRec(root);
+        System.out.println();
+    }
+
+    private void postorderRec(Node node) {
+        if (node != null) {
+            postorderRec(node.left);
+            postorderRec(node.right);
+            System.out.print(node.value + " ");
+        }
+    }
+
+    public void preorder() {
+        preorderRec(root);
+        System.out.println();
+    }
+
+    private void preorderRec(Node node) {
+        if (node != null) {
+            System.out.print(node.value + " ");
+            preorderRec(node.left);
+            preorderRec(node.right);
+        }
+    }
+
+    public boolean search(int val) {
+        return searchRec(root, val);
+    }
+
+    private boolean searchRec(Node node, int val) {
+        if (node == null) return false;
+        if (val == node.value) return true;
+        return val < node.value ? searchRec(node.left, val) : searchRec(node.right, val);
+    }
+
+    public List<Integer> path(int val) {
+        List<Integer> result = new ArrayList<>();
+        pathRec(root, val, result);
+        return result;
+    }
+
+    private boolean pathRec(Node node, int val, List<Integer> result) {
+        if (node == null) return false;
+        result.add(node.value);
+        if (node.value == val) return true;
+        if ((node.left != null && pathRec(node.left, val, result)) ||
+            (node.right != null && pathRec(node.right, val, result)))
+            return true;
+        result.remove(result.size() - 1);
+        return false;
     }
 }
 
-class Lab4 {
+public class Main {
+    public static void main(String[] args) {
+        // Step 1
+        BST lab5Tree = new BST();
 
-    public static ArrayList<Integer> insertionSort(ArrayList<Integer> integerList) {
-        // Create a copy so original list is not modified
-        ArrayList<Integer> list = new ArrayList<>(integerList);
+        // Step 2
+        int[] values = {13, 22, 36, 5, 48, 17, 39, 2, 26, 40, 29, 34, 10};
+        for (int val : values) lab5Tree.insert(val);
 
-        for (int i = 1; i < list.size(); i++) {
-            int key = list.get(i);
-            int j = i - 1;
+        // Step 3
+        lab5Tree.delete(17);
 
-            // Move elements greater than key one position ahead
-            while (j >= 0 && list.get(j) > key) {
-                list.set(j + 1, list.get(j));
-                j--;
-            }
-            list.set(j + 1, key);
-        }
+        // Step 4
+        System.out.print("Inorder: ");
+        lab5Tree.inorder();
 
-        return list;
+        // Step 5
+        System.out.print("Postorder: ");
+        lab5Tree.postorder();
+
+        // Step 6
+        System.out.print("Preorder: ");
+        lab5Tree.preorder();
+
+        // Step 7
+        System.out.println("Search 36: " + lab5Tree.search(36));
+
+        // Step 8
+        System.out.println("Search 37: " + lab5Tree.search(37));
+
+        // Step 9
+        System.out.println("Path to 2: " + lab5Tree.path(2));
+
+        // Step 10
+        System.out.println("Path to 34: " + lab5Tree.path(34));
     }
-
-    public static ArrayList<Integer> bubbleSort(ArrayList<Integer> integerList) {
-        // Create a copy so original list is not modified
-        ArrayList<Integer> list = new ArrayList<>(integerList);
-        int n = list.size();
-        boolean swapped;
-
-        for (int i = 0; i < n - 1; i++) {
-            swapped = false;
-            for (int j = 0; j < n - 1 - i; j++) {
-                if (list.get(j) > list.get(j + 1)) {
-                    // Swap elements
-                    int temp = list.get(j);
-                    list.set(j, list.get(j + 1));
-                    list.set(j + 1, temp);
-                    swapped = true;
-                }
-            }
-            // If no swaps occurred in this pass, the list is sorted
-            if (!swapped) break;
-        }
-
-        return list;
-    }
-
-    public static ArrayList<Integer> getList() {
-        ArrayList<Integer> integerList = new ArrayList
+}
